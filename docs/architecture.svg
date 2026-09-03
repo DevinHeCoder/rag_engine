@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="330" viewBox="0 0 1200 330" font-family="'PingFang SC','Microsoft YaHei','Segoe UI',Arial,sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6B7280"/>
+    </marker>
+  </defs>
+
+  <!-- 标题 -->
+  <text x="45" y="34" font-size="26" font-weight="700" fill="#1A1B1C">企业可插拔式 RAG 检索引擎</text>
+  <text x="45" y="60" font-size="14" fill="#6B7280">可插拔分层架构 · 文档 → 解析 → 分块 → 召回 → 重排 → 生成 · 156 个单元测试全绿 · Docker 一键部署</text>
+
+  <!-- 主流程节点 -->
+  <g>
+    <!-- 文档输入 -->
+    <rect x="45" y="86" width="120" height="88" rx="10" fill="rgba(226,232,240,0.6)" stroke="#CBD5E1" stroke-width="1"/>
+    <text x="105" y="124" font-size="15" font-weight="600" fill="#1A1B1C" text-anchor="middle">文档输入</text>
+    <text x="105" y="146" font-size="12" fill="#6B7280" text-anchor="middle">MD · PDF · Word</text>
+    <text x="105" y="162" font-size="11" fill="#94A3B8" text-anchor="middle">企业知识库</text>
+
+    <!-- 箭头 -->
+    <line x1="167" y1="130" x2="185" y2="130" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <!-- 解析层 -->
+    <rect x="187" y="86" width="142" height="88" rx="10" fill="rgba(163,213,232,0.30)" stroke="#8BC8EA" stroke-width="1.2"/>
+    <text x="258" y="124" font-size="15" font-weight="600" fill="#1A1B1C" text-anchor="middle">解析层</text>
+    <text x="258" y="146" font-size="12" fill="#475569" text-anchor="middle">md_parser</text>
+    <text x="258" y="162" font-size="12" fill="#475569" text-anchor="middle">pdf_parser · word_parser</text>
+
+    <line x1="331" y1="130" x2="349" y2="130" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <!-- 分块层 -->
+    <rect x="351" y="86" width="142" height="88" rx="10" fill="rgba(163,213,232,0.30)" stroke="#8BC8EA" stroke-width="1.2"/>
+    <text x="422" y="124" font-size="15" font-weight="600" fill="#1A1B1C" text-anchor="middle">分块层</text>
+    <text x="422" y="146" font-size="12" fill="#475569" text-anchor="middle">fixed_chunker</text>
+    <text x="422" y="162" font-size="12" fill="#475569" text-anchor="middle">hierarchy · semantic</text>
+
+    <line x1="495" y1="130" x2="513" y2="130" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <!-- 召回层 -->
+    <rect x="515" y="86" width="142" height="88" rx="10" fill="rgba(163,213,232,0.45)" stroke="#5BA8D9" stroke-width="1.4"/>
+    <text x="586" y="124" font-size="15" font-weight="700" fill="#1A1B1C" text-anchor="middle">召回层</text>
+    <text x="586" y="146" font-size="12" fill="#334155" text-anchor="middle">bm25_retriever</text>
+    <text x="586" y="162" font-size="12" fill="#334155" text-anchor="middle">vector · hybrid(RRF)</text>
+
+    <line x1="659" y1="130" x2="677" y2="130" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <!-- 重排层 -->
+    <rect x="679" y="86" width="142" height="88" rx="10" fill="rgba(163,213,232,0.30)" stroke="#8BC8EA" stroke-width="1.2"/>
+    <text x="750" y="124" font-size="15" font-weight="600" fill="#1A1B1C" text-anchor="middle">重排层</text>
+    <text x="750" y="146" font-size="12" fill="#475569" text-anchor="middle">llm_reranker</text>
+    <text x="750" y="162" font-size="12" fill="#475569" text-anchor="middle">cross-encoder 可扩展</text>
+
+    <line x1="823" y1="130" x2="841" y2="130" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <!-- 生成层 -->
+    <rect x="843" y="86" width="142" height="88" rx="10" fill="rgba(148,216,195,0.30)" stroke="#7CC7A9" stroke-width="1.2"/>
+    <text x="914" y="124" font-size="15" font-weight="600" fill="#1A1B1C" text-anchor="middle">生成层</text>
+    <text x="914" y="146" font-size="12" fill="#475569" text-anchor="middle">openai_compatible</text>
+    <text x="914" y="162" font-size="12" fill="#475569" text-anchor="middle">qwen · deepseek · vLLM</text>
+
+    <line x1="987" y1="130" x2="1005" y2="130" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <!-- 回答输出 -->
+    <rect x="1007" y="86" width="148" height="88" rx="10" fill="rgba(226,232,240,0.6)" stroke="#CBD5E1" stroke-width="1"/>
+    <text x="1081" y="124" font-size="15" font-weight="600" fill="#1A1B1C" text-anchor="middle">回答输出</text>
+    <text x="1081" y="146" font-size="12" fill="#6B7280" text-anchor="middle">引用来源</text>
+    <text x="1081" y="162" font-size="11" fill="#94A3B8" text-anchor="middle">防幻觉</text>
+  </g>
+
+  <!-- 公共基础层 -->
+  <rect x="45" y="200" width="1110" height="66" rx="12" fill="rgba(228,227,221,0.5)" stroke="#D6D5CE" stroke-width="1"/>
+  <text x="65" y="228" font-size="14" font-weight="600" fill="#1A1B1C">公共基础层</text>
+  <text x="65" y="250" font-size="13" fill="#475569">Registry 泛型注册表（可插拔） · Config（YAML + ${ENV} 注入） · Logger · 统一异常体系</text>
+
+  <!-- 底部能力标注 -->
+  <text x="65" y="292" font-size="13" fill="#475569">
+    FastAPI API 层 (/ingest /query /health)  ·  评估层 (recall@k / MRR / faithfulness)  ·  部署 (Docker · Compose · GitHub Actions)
+  </text>
+  <text x="65" y="314" font-size="12" fill="#94A3B8">
+    新增实现 = 写一个类 + @registry.register("name")，上层零改动
+  </text>
+</svg>
