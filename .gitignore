@@ -1,0 +1,41 @@
+# ==================== RAG Engine .gitignore ====================
+
+# 敏感信息：API 密钥（.env.example 是可提交的模板，勿删）
+.env
+.env.local
+.env.*.local
+
+# 虚拟环境
+.venv/
+venv/
+env/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# 测试与工具缓存
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# 运行时产物（日志、挂载数据）
+logs/
+data/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini

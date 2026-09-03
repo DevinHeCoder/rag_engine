@@ -1,0 +1,65 @@
+# ==================== RAG Engine 全局配置 ====================
+# 说明：
+#   1. ${ENV_VAR} 或 ${ENV_VAR:默认值} 会被环境变量展开，用于注入密钥等敏感信息；
+#      未设置且无默认值时启动即报错（ConfigError），避免静默用错配置。
+#   2. 环境变量 RAG_LLM__MODEL=x 可覆盖下方任意路径（前缀 RAG_ + 双下划线分隔层级）。
+#   3. 各层的 name 字段（chunker/retriever/reranker/llm 等）即“可插拔”的选型开关，
+#      对应各层 Registry 中注册的实现名。
+
+app:
+  name: rag_engine
+  version: 0.1.0
+
+# 日志配置路径（相对项目根）
+logging:
+  config_path: config/logging.yaml
+
+# ---------------- 数据侧：解析与分块 ----------------
+ingestion:
+  parser:
+    pdf: pypdf            # pypdf | pdfplumber（注册表可选实现）
+    word: python-docx     # python-docx
+    md: markdown          # markdown
+  chunker: fixed          # fixed | hierarchy | semantic（可插拔选型）
+  chunk_size: 512         # 分块字符数
+  chunk_overlap: 64       # 相邻块重叠字符数
+  hierarchy_separators: ["\n# ", "\n## ", "\n### ", "\n#### "]
+
+# ---------------- 检索侧 ----------------
+retrieval:
+  retriever: hybrid       # vector | bm25 | hybrid（可插拔选型）
+  top_k: 8
+  rrf_k: 60               # RRF 融合参数（hybrid_retriever 已实现）
+  vector:
+    provider: local       # local | openai | dashscope（可插拔选型）
+    model: paraphrase-multilingual-MiniLM-L12-v2
+    dimension: 384
+    index_dir: data/index # 本地向量索引落盘目录
+  bm25:
+    language: chinese     # chinese | english
+
+# ---------------- 重排 ----------------
+rerank:
+  enabled: true
+  top_n: 5
+  provider: llm           # cross-encoder | llm（可插拔选型）
+
+# ---------------- 生成（密钥全部走环境变量注入） ----------------
+llm:
+  provider: openai_compatible  # openai_compatible | dashscope | doubao（可插拔选型）
+  base_url: ${RAG_LLM_BASE_URL:}
+  api_key: ${RAG_LLM_API_KEY:}
+  model: ${RAG_LLM_MODEL:}
+  embedding_model: ${RAG_LLM_EMBEDDING_MODEL:}
+  temperature: 0.2
+  max_tokens: 1024
+
+# ---------------- 评估 ----------------
+evaluation:
+  top_k: 8
+  metrics: ["recall@k", "mrr", "faithfulness"]
+
+# ---------------- 服务 ----------------
+server:
+  host: 0.0.0.0
+  port: 8000

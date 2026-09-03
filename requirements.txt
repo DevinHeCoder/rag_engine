@@ -1,0 +1,26 @@
+# ==================== RAG Engine 依赖清单 ====================
+# 版本策略：>= 最低可用版本，不锁死小版本
+
+# --- 配置与日志（P0）---
+PyYAML>=6.0
+
+# --- 文档解析（P1）---
+pypdf>=4.2
+python-docx>=1.1
+
+# --- 数值与检索（P3）---
+numpy>=1.26
+rank-bm25>=0.2.2
+
+# --- LLM 客户端（P4，OpenAI 兼容）---
+openai>=1.30
+httpx>=0.27
+
+# --- Web 服务层（P5）---
+fastapi>=0.111
+uvicorn[standard]>=0.30
+pydantic>=2.7
+python-multipart>=0.0.9   # FastAPI 文件上传（/ingest/file）
+
+# --- 测试与开发（P0 起）---
+pytest>=8.2

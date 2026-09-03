@@ -1,0 +1,28 @@
+# ==================== RAG Engine 服务编排 ====================
+# 使用: docker compose up -d --build
+# LLM 密钥通过宿主机环境变量或同目录 .env 注入（见 .env.example）
+services:
+  rag-engine:
+    build: .
+    container_name: rag-engine
+    ports:
+      - "8000:8000"
+    environment:
+      # LLM 配置（可插拔供应商，密钥走环境变量注入）
+      RAG_LLM_BASE_URL: ${RAG_LLM_BASE_URL:-}
+      RAG_LLM_API_KEY: ${RAG_LLM_API_KEY:-}
+      RAG_LLM_MODEL: ${RAG_LLM_MODEL:-}
+      RAG_LLM_EMBEDDING_MODEL: ${RAG_LLM_EMBEDDING_MODEL:-}
+      # 可插拔选型（通过环境变量深路径覆盖 config/settings.yaml）
+      RAG_RETRIEVAL__RETRIEVER: ${RAG_RETRIEVAL__RETRIEVER:-hybrid}
+      RAG_INGESTION__CHUNKER: ${RAG_INGESTION__CHUNKER:-fixed}
+    volumes:
+      # 可选：挂载文档目录供文件摄入
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3

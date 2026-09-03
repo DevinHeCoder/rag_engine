@@ -1,0 +1,13 @@
+# 构建上下文排除项：避免把本地依赖/日志/虚拟环境打进镜像
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+logs/
+data/
+*.md~
+.DS_Store
+.git/
