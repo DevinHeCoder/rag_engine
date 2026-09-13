@@ -7,7 +7,7 @@
 
   <!-- 标题 -->
   <text x="45" y="34" font-size="26" font-weight="700" fill="#1A1B1C">企业可插拔式 RAG 检索引擎</text>
-  <text x="45" y="60" font-size="14" fill="#6B7280">可插拔分层架构 · 文档 → 解析 → 分块 → 召回 → 重排 → 生成 · 156 个单元测试全绿 · Docker 一键部署</text>
+  <text x="45" y="60" font-size="14" fill="#6B7280">可插拔分层架构 · 文档 → 解析 → 分块 → 召回 → 重排 → 生成 · 180 个单元测试全绿 · Docker 一键部署</text>
 
   <!-- 主流程节点 -->
   <g>
@@ -39,8 +39,8 @@
     <!-- 召回层 -->
     <rect x="515" y="86" width="142" height="88" rx="10" fill="rgba(163,213,232,0.45)" stroke="#5BA8D9" stroke-width="1.4"/>
     <text x="586" y="124" font-size="15" font-weight="700" fill="#1A1B1C" text-anchor="middle">召回层</text>
-    <text x="586" y="146" font-size="12" fill="#334155" text-anchor="middle">bm25_retriever</text>
-    <text x="586" y="162" font-size="12" fill="#334155" text-anchor="middle">vector · hybrid(RRF)</text>
+    <text x="586" y="146" font-size="12" fill="#334155" text-anchor="middle">bm25/vector/hybrid</text>
+    <text x="586" y="162" font-size="12" fill="#334155" text-anchor="middle">milvus 持久化索引</text>
 
     <line x1="659" y1="130" x2="677" y2="130" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
 
@@ -48,7 +48,7 @@
     <rect x="679" y="86" width="142" height="88" rx="10" fill="rgba(163,213,232,0.30)" stroke="#8BC8EA" stroke-width="1.2"/>
     <text x="750" y="124" font-size="15" font-weight="600" fill="#1A1B1C" text-anchor="middle">重排层</text>
     <text x="750" y="146" font-size="12" fill="#475569" text-anchor="middle">llm_reranker</text>
-    <text x="750" y="162" font-size="12" fill="#475569" text-anchor="middle">cross-encoder 可扩展</text>
+    <text x="750" y="162" font-size="12" fill="#475569" text-anchor="middle">可插拔替换</text>
 
     <line x1="823" y1="130" x2="841" y2="130" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
 
@@ -74,9 +74,9 @@
 
   <!-- 底部能力标注 -->
   <text x="65" y="292" font-size="13" fill="#475569">
-    FastAPI API 层 (/ingest /query /health)  ·  评估层 (recall@k / MRR / faithfulness)  ·  部署 (Docker · Compose · GitHub Actions)
+    FastAPI API 层 (/ingest /query /health)  ·  评估层 (recall@k / MRR / faithfulness)  ·  部署 (Docker · Compose)
   </text>
   <text x="65" y="314" font-size="12" fill="#94A3B8">
-    新增实现 = 写一个类 + @registry.register("name")，上层零改动
+    新增实现 = 写一个类 + @registry.register("name")，上层零改动  ·  Milvus 为可选外部依赖 (19530)
   </text>
 </svg>
