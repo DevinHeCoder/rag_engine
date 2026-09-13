@@ -72,7 +72,7 @@ def main():
     # 2. 构建召回器
     embed_func = None
     llm = None
-    if retrieval_cfg.get("retriever", "hybrid") in ("hybrid", "vector"):
+    if retrieval_cfg.get("retriever", "hybrid") in ("hybrid", "vector", "milvus"):
         llm_cfg = config.get("llm", {})
         llm = build_llm_client(
             llm_cfg.get("provider", "openai_compatible"),
@@ -89,6 +89,7 @@ def main():
         embed_func=embed_func,
         top_k=top_k,
         rrf_k=retrieval_cfg.get("rrf_k", 60),
+        milvus_cfg=retrieval_cfg.get("milvus", {}),
     )
 
     # 3. 加载评估集

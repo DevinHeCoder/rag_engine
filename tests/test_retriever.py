@@ -39,7 +39,7 @@ class TestRegistry:
         assert retriever_registry.has("bm25")
         assert retriever_registry.has("vector")
         assert retriever_registry.has("hybrid")
-        assert set(retriever_registry.names) == {"bm25", "vector", "hybrid"}
+        assert set(retriever_registry.names) == {"bm25", "vector", "hybrid", "milvus"}
 
 
 # ---------------- BM25 召回器 ----------------

@@ -139,9 +139,39 @@ class MyRetriever(BaseRetriever):
 |---|---|---|
 | 解析 | `document_parser_registry` | md / pdf / word |
 | 分块 | `chunker_registry` | fixed / hierarchy / semantic |
-| 召回 | `retriever_registry` | bm25 / vector / hybrid |
+| 召回 | `retriever_registry` | bm25 / vector / hybrid / milvus |
 | 重排 | `reranker_registry` | llm |
 | LLM | `llm_client_registry` | openai_compatible |
+
+## Milvus 向量召回（可选）
+
+默认 `vector` 召回器用 numpy 内存索引（适合 ≤ 万级文档）；文档量大、需要索引持久化与增量更新时，可切换到 **Milvus** 召回器（已注册为 `milvus`）。
+
+**1. 启动 Milvus 服务**（Docker，可选编排）：
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.milvus.yml up -d --build
+# 拉起 etcd + minio + milvus（Milvus 监听 19530）
+```
+
+**2. 配置切换到 Milvus**（`.env` 或环境变量）：
+
+```bash
+RAG_RETRIEVAL__RETRIEVER=milvus
+MILVUS_HOST=localhost
+MILVUS_PORT=19530
+```
+
+**3. 安装客户端依赖**（本地运行或镜像构建时）：
+
+```bash
+pip install "pymilvus>=2.4"
+```
+
+Milvus 召回器特性：
+- 索引**持久化在服务端**，进程重启不丢失；支持增量 `upsert` 与按 `doc_id` 删除
+- 连接/collection/索引参数在 `config/settings.yaml` 的 `retrieval.milvus` 段配置（dim/metric_type/index_type/nlist/nprobe）
+- 单元测试全量 mock，无需真实服务（`tests/retriever/test_milvus_retriever.py`）
 
 ## 离线评估
 

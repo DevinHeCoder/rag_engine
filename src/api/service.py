@@ -93,6 +93,7 @@ class RAGService:
                 embed_func=self._get_embed_func(),
                 top_k=retrieval_cfg.get("top_k", 8),
                 rrf_k=retrieval_cfg.get("rrf_k", 60),
+                milvus_cfg=retrieval_cfg.get("milvus", {}),
             )
             logger.info("懒加载召回器: %s", retrieval_cfg.get("retriever", "hybrid"))
         return self._retriever

@@ -27,7 +27,7 @@ ingestion:
 
 # ---------------- 检索侧 ----------------
 retrieval:
-  retriever: hybrid       # vector | bm25 | hybrid（可插拔选型）
+  retriever: hybrid       # vector | bm25 | hybrid | milvus（可插拔选型）
   top_k: 8
   rrf_k: 60               # RRF 融合参数（hybrid_retriever 已实现）
   vector:
@@ -37,6 +37,18 @@ retrieval:
     index_dir: data/index # 本地向量索引落盘目录
   bm25:
     language: chinese     # chinese | english
+  milvus:
+    host: ${MILVUS_HOST:localhost}
+    port: ${MILVUS_PORT:19530}
+    user: ${MILVUS_USER:}
+    password: ${MILVUS_PASSWORD:}
+    database: ${MILVUS_DATABASE:default}
+    collection: rag_chunks
+    dim: 384
+    metric_type: COSINE   # COSINE | IP | L2
+    index_type: IVF_FLAT  # IVF_FLAT | HNSW | DISKANN
+    nlist: 1024
+    nprobe: 16
 
 # ---------------- 重排 ----------------
 rerank:

@@ -6,8 +6,11 @@ from src.api.dependencies import get_service
 from src.api.schemas import QueryRequest, QueryResponse, QueryResultItem
 from src.api.service import RAGService
 from src.common.exceptions import RAGEngineError
+from src.utils.logger import get_logger
 
 router = APIRouter(prefix="/query", tags=["query"])
+
+logger = get_logger("rag_engine.api.query")
 
 
 @router.post("", response_model=QueryResponse)
@@ -26,7 +29,9 @@ async def query(
     except RAGEngineError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"查询失败: {e}")
+        # 500 只返回通用消息，内部异常记录到服务端日志（避免泄漏内部细节）
+        logger.exception("查询未预期异常: question=%r", request.question)
+        raise HTTPException(status_code=500, detail="查询失败，请稍后重试")
 
     return QueryResponse(
         answer=answer,

@@ -51,6 +51,7 @@ def build_rag_pipeline(config: dict, docs: list):
         embed_func=embed_func,
         top_k=retrieval_cfg.get("top_k", 8),
         rrf_k=retrieval_cfg.get("rrf_k", 60),
+        milvus_cfg=retrieval_cfg.get("milvus", {}),
     )
 
     rerank_cfg = config.get("rerank", {})
