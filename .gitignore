@@ -56,3 +56,9 @@ landing/
 
 # 个人面试/简历材料
 docs/*.docx
+
+# API key 临时文件
+_current_key.txt
+
+# 商务模板（含报价/合同信息，不进公开仓库）
+business_templates/

@@ -2,7 +2,7 @@
 
 通过 base_url 切换供应商，api_key 从配置或环境变量注入。
 """
-from typing import List, Optional
+from typing import Generator, List, Optional
 
 from openai import OpenAI
 
@@ -50,6 +50,24 @@ class OpenAICompatibleClient(BaseLLMClient):
             return content if content else ""
         except Exception as e:
             raise LLMError(f"LLM 聊天调用失败: {e}") from e
+
+    def chat_stream(self, messages: List[dict], **kwargs) -> Generator[str, None, None]:
+        try:
+            stream = self.client.chat.completions.create(
+                model=kwargs.get("model", self.model),
+                messages=messages,
+                temperature=kwargs.get("temperature", self.temperature),
+                max_tokens=kwargs.get("max_tokens", self.max_tokens),
+                stream=True,
+            )
+            for chunk in stream:
+                if not chunk.choices:
+                    continue
+                delta = chunk.choices[0].delta.content
+                if delta:
+                    yield delta
+        except Exception as e:
+            raise LLMError(f"LLM 流式调用失败: {e}") from e
 
     def embed(self, text: str, **kwargs) -> List[float]:
         model = kwargs.get("model", self.embedding_model)

@@ -1,6 +1,9 @@
 """P5 API 层：query 路由。"""
+import json
+
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.concurrency import run_in_threadpool
+from fastapi.responses import StreamingResponse
 
 from src.api.dependencies import get_service
 from src.api.schemas import QueryRequest, QueryResponse, QueryResultItem
@@ -29,7 +32,6 @@ async def query(
     except RAGEngineError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        # 500 只返回通用消息，内部异常记录到服务端日志（避免泄漏内部细节）
         logger.exception("查询未预期异常: question=%r", request.question)
         raise HTTPException(status_code=500, detail="查询失败，请稍后重试")
 
@@ -45,4 +47,40 @@ async def query(
             )
             for r in results
         ],
+    )
+
+
+@router.post("/stream")
+async def query_stream(
+    request: QueryRequest,
+    service: RAGService = Depends(get_service),
+):
+    """流式查询：先返回候选来源（JSON），再逐段推送回答文本（SSE）。"""
+
+    async def event_generator():
+        try:
+            candidates, token_gen = await run_in_threadpool(
+                service.query_stream,
+                request.question,
+                request.top_k,
+                request.rerank,
+            )
+            sources = [
+                {"doc_id": c.doc_id, "content": c.content, "score": c.score}
+                for c in candidates
+            ]
+            yield f"data: {json.dumps({'type': 'sources', 'data': sources}, ensure_ascii=False)}\n\n"
+            for token in token_gen:
+                yield f"data: {json.dumps({'type': 'token', 'data': token}, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'type': 'done'})}\n\n"
+        except RAGEngineError as e:
+            yield f"data: {json.dumps({'type': 'error', 'data': str(e)}, ensure_ascii=False)}\n\n"
+        except Exception as e:
+            logger.exception("流式查询异常")
+            yield f"data: {json.dumps({'type': 'error', 'data': '查询失败'}, ensure_ascii=False)}\n\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )

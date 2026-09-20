@@ -1,6 +1,6 @@
 """LLM 客户端抽象基类：不同供应商（OpenAI/DeepSeek/通义/豆包等）实现同一接口。"""
 from abc import ABC, abstractmethod
-from typing import List
+from typing import Generator, List
 
 
 class BaseLLMClient(ABC):
@@ -15,6 +15,10 @@ class BaseLLMClient(ABC):
             **kwargs: 透传给具体实现的参数（model/temperature/max_tokens 等）
         """
         pass
+
+    def chat_stream(self, messages: List[dict], **kwargs) -> Generator[str, None, None]:
+        """流式聊天，逐段 yield 文本增量。默认退化为非流式 chat。"""
+        yield self.chat(messages, **kwargs)
 
     @abstractmethod
     def embed(self, text: str, **kwargs) -> List[float]:

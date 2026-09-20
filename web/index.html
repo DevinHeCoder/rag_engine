@@ -269,15 +269,15 @@ body {
       </select>
     </div>
     <div class="param-group">
-      <label class="param-label">top_k：<span class="slider-val" id="topKVal">8</span></label>
+      <label class="param-label">top_k：<span class="slider-val" id="topKVal">4</span></label>
       <div class="slider-row">
-        <input type="range" id="topK" min="1" max="20" value="8">
+        <input type="range" id="topK" min="1" max="20" value="4">
       </div>
     </div>
     <div class="param-row">
       <span class="param-label" style="margin:0">LLM 重排</span>
       <label class="switch">
-        <input type="checkbox" id="rerank" checked>
+        <input type="checkbox" id="rerank">
         <span class="slider"></span>
       </label>
     </div>
@@ -291,7 +291,7 @@ body {
   <main class="main">
     <div class="topbar">
       <h1>智能问答 <span class="badge badge-blue">API 模式</span></h1>
-      <div class="meta">Hybrid 检索 · LLM 重排 · 流式回答</div>
+      <div class="meta">Hybrid 检索 · 流式回答</div>
     </div>
     <div class="chat-area" id="chatArea">
       <div class="welcome" id="welcome">
@@ -316,7 +316,7 @@ body {
 <div class="toast" id="toast"></div>
 
 <script>
-const API_KEY = 'YOUR_API_KEY_HERE'; // 部署时替换为你自己的 API Key
+const API_KEY = 'rag_57020edb4d16716374373eff72cde225';
 let selectedFile = null;
 
 const $ = id => document.getElementById(id);
@@ -389,18 +389,40 @@ async function send() {
   $('welcome').style.display = 'none';
 
   addMsg('user', q);
-  const loadingId = addMsg('bot', '<span class="loading"></span> 思考中…');
+  const loadingId = addMsg('bot', '<span class="loading"></span> 正在检索知识库…');
 
   try {
-    const r = await fetch('/api/query', {
+    const r = await fetch('/api/query/stream', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-API-Key': API_KEY },
       body: JSON.stringify({ question: q, top_k: +$('topK').value, rerank: $('rerank').checked })
     });
     if (!r.ok) throw new Error(await r.text());
-    const data = await r.json();
-    updateMsg(loadingId, data.answer || '（无回答）');
-    if (data.results && data.results.length) addSources(data.results);
+
+    const reader = r.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = '', full = '', gotSources = false;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, { stream: true });
+      const lines = buf.split('\n');
+      buf = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data:')) continue;
+        try {
+          const evt = JSON.parse(line.slice(5).trim());
+          if (evt.type === 'sources' && evt.data && evt.data.length) {
+            gotSources = true;
+            addSources(evt.data);
+            updateMsg(loadingId, '<span class="loading"></span> 正在生成回答…');
+          }
+          else if (evt.type === 'token') { full += evt.data; updateMsg(loadingId, full); }
+          else if (evt.type === 'error') throw new Error(evt.data);
+        } catch (_) {}
+      }
+    }
+    if (!full) updateMsg(loadingId, '（无回答）');
   } catch(e) {
     updateMsg(loadingId, '出错了：' + e.message.slice(0, 200));
   }

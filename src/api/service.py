@@ -117,6 +117,8 @@ class RAGService:
         content: str,
         doc_id: Optional[str] = None,
         chunker: Optional[str] = None,
+        tenant_id: Optional[str] = None,
+        kb_id: Optional[str] = None,
     ) -> List[Document]:
         """按文本摄入：切块并加入内存索引。"""
         if not content or not content.strip():
@@ -147,6 +149,8 @@ class RAGService:
         file_path: str,
         doc_id: Optional[str] = None,
         chunker: Optional[str] = None,
+        tenant_id: Optional[str] = None,
+        kb_id: Optional[str] = None,
     ) -> List[Document]:
         """按文件摄入：解析 → 切块 → 加入内存索引。
 
@@ -221,3 +225,43 @@ class RAGService:
             {"role": "user", "content": f"参考文档：\n{context_text}\n\n问题：{question}\n\n回答："},
         ]
         return llm.chat(messages)
+
+    def query_stream(
+        self,
+        question: str,
+        top_k: Optional[int] = None,
+        rerank: Optional[bool] = None,
+    ):
+        """端到端流式查询：先召回+重排，再逐段 yield 回答文本。
+
+        返回 (candidates, token_generator)：
+            先返回候选片段列表，再 yield 生成的文本增量。
+        """
+        if not self._chunks:
+            raise RAGEngineError("索引为空，请先摄入文档")
+
+        retrieval_cfg = self.config.get("retrieval", {})
+        k = top_k or retrieval_cfg.get("top_k", 8)
+
+        retriever = self._get_retriever()
+        candidates = retriever.retrieve(question, top_k=k)
+
+        rerank_cfg = self.config.get("rerank", {})
+        use_rerank = rerank if rerank is not None else rerank_cfg.get("enabled", True)
+        if use_rerank and candidates:
+            reranker = self._get_reranker()
+            if reranker is not None:
+                candidates = reranker.rerank(question, candidates)
+
+        llm = self._get_llm()
+        context_text = "\n\n---\n\n".join(
+            f"[{i+1}] {c.content}" for i, c in enumerate(candidates[:3])
+        )
+        messages = [
+            {"role": "system", "content": (
+                "你是一个知识助手。请根据以下参考文档回答用户问题，"
+                "如果文档中没有相关信息，请如实说明，不要编造。"
+            )},
+            {"role": "user", "content": f"参考文档：\n{context_text}\n\n问题：{question}\n\n回答："},
+        ]
+        return candidates, llm.chat_stream(messages)
