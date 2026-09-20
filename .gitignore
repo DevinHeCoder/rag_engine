@@ -39,3 +39,20 @@ data/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# 本地调试/临时脚本与截帧（不进版本库）
+_*.py
+_*.json
+_*.png
+_frames/
+_frames2/
+*.mp4
+
+# 本地大文件（视频已部署到服务器）
+rag_engine_demo.mp4
+
+# 交付落地页（不进公开仓库）
+landing/
+
+# 个人面试/简历材料
+docs/*.docx
