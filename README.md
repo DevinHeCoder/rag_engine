@@ -8,11 +8,11 @@
 
 | | 地址 |
 |---|---|
-| **Web 演示** | http://your-server.example.com:8080 |
-| **API 文档**（Swagger） | http://your-server.example.com:8000/docs |
+| **Web 演示** | [https://your-demo.example.com](https://your-demo.example.com) |
+| **落地页** | [https://your-site.example.com](https://your-site.example.com) |
 | **演示视频** | 见下方 GIF / 本地 `landing/assets/demo.mp4` |
 
-> 演示环境跑在腾讯云轻量服务器（2C4G），上传一份员工手册即可提问，回答带来源溯源。
+> 上传一份员工手册即可提问，回答带来源溯源。
 
 ```
 文档 → 解析(P1) → 分块(P2) → 召回(P3) → 重排(P4) → 生成(P4) → API(P5) → 评估(P6) → 部署(P7)

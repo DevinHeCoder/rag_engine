@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG Engine · 企业可插拔式 RAG 检索引擎</title>
+<meta name="description" content="从零实现的可插拔式企业 RAG 检索引擎。支持多向量库、多种分块策略、混合检索与来源溯源。">
+<meta property="og:title" content="RAG Engine · 企业可插拔式 RAG 检索引擎">
+<meta property="og:description" content="从零实现的可插拔式企业 RAG 检索引擎。支持多向量库、多种分块策略、混合检索与来源溯源。">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f7cff'/><text x='50' y='68' font-size='52' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'>R</text></svg>">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #0f111a; color: #e8eaf0; line-height: 1.6;
+}
+a { color: inherit; text-decoration: none; }
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(15,17,26,0.85); backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.nav-inner { display: flex; justify-content: space-between; align-items: center; height: 60px; }
+.logo { font-size: 17px; font-weight: 700; }
+.logo span { color: #4f7cff; }
+.nav-links { display: flex; gap: 20px; font-size: 14px; color: #9aa0b4; }
+.nav-links a:hover { color: #fff; }
+
+.hero { padding: 72px 0 48px; text-align: center; }
+.hero h1 { font-size: 42px; font-weight: 800; line-height: 1.2; margin-bottom: 16px; }
+.hero h1 span {
+  background: linear-gradient(135deg, #4f7cff, #8b5cf6);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero p { font-size: 17px; color: #9aa0b4; max-width: 600px; margin: 0 auto 32px; }
+.hero-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.btn {
+  padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 500;
+  transition: transform .15s, opacity .15s;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn-primary { background: #4f7cff; color: #fff; }
+.btn-ghost { background: rgba(255,255,255,0.06); color: #e8eaf0; border: 1px solid rgba(255,255,255,0.12); }
+
+.section { padding: 48px 0; }
+.section-title { font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 8px; }
+.section-sub { text-align: center; color: #9aa0b4; margin-bottom: 40px; font-size: 14px; }
+
+.features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.feature {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; padding: 20px;
+}
+.feature h3 { font-size: 15px; margin-bottom: 6px; color: #fff; }
+.feature p { font-size: 13px; color: #9aa0b4; }
+
+.tech { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.tag {
+  padding: 6px 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px; font-size: 12px; color: #c8ccdb;
+}
+
+.cta {
+  background: linear-gradient(135deg, rgba(79,124,255,0.1), rgba(139,92,246,0.1));
+  border-radius: 16px; padding: 40px; text-align: center; border: 1px solid rgba(79,124,255,0.2);
+}
+.cta h2 { font-size: 24px; margin-bottom: 10px; }
+.cta p { color: #9aa0b4; margin-bottom: 24px; }
+
+footer { padding: 28px 0; text-align: center; color: #6b7080; font-size: 13px; border-top: 1px solid rgba(255,255,255,0.06); }
+
+@media (max-width: 768px) {
+  .hero h1 { font-size: 28px; }
+  .nav-links { display: none; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container nav-inner">
+    <div class="logo">RAG<span>.</span>Engine</div>
+    <div class="nav-links">
+      <a href="https://github.com/DevinHeCoder/rag_engine" target="_blank">GitHub</a>
+      <a href="https://your-demo.example.com" target="_blank">在线 Demo</a>
+      <a href="https://your-site.example.com" target="_blank">落地页</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container">
+    <h1>企业可插拔式 <span>RAG 检索引擎</span></h1>
+    <p>从零实现的企业级 RAG 系统。每层抽象 + 注册表 + 配置选型，新增实现只需写类加装饰器，上层零改动。</p>
+    <div class="hero-btns">
+      <a href="https://your-demo.example.com" target="_blank" class="btn btn-primary">在线体验 Demo</a>
+      <a href="https://github.com/DevinHeCoder/rag_engine" target="_blank" class="btn btn-ghost">GitHub 源码</a>
+    </div>
+  </div>
+</header>
+
+<section class="section">
+  <div class="container">
+    <h2 class="section-title">核心能力</h2>
+    <p class="section-sub">不是调 API 的玩具，是可落地生产的架构</p>
+    <div class="features">
+      <div class="feature">
+        <h3>可插拔架构</h3>
+        <p>向量库、LLM、Embedding 全部接口化，一套代码换组件不改业务。</p>
+      </div>
+      <div class="feature">
+        <h3>三种分块策略</h3>
+        <p>定长、层级、语义分块按需切换，适配不同文档体裁。</p>
+      </div>
+      <div class="feature">
+        <h3>混合检索 + 重排</h3>
+        <p>BM25 关键词与向量语义混合召回，LLM 重排精排。</p>
+      </div>
+      <div class="feature">
+        <h3>来源溯源</h3>
+        <p>每条回答附带来源文档片段与相关度分数，不瞎编。</p>
+      </div>
+      <div class="feature">
+        <h3>多租户</h3>
+        <p>API Key 鉴权，按租户隔离索引与查询缓存。</p>
+      </div>
+      <div class="feature">
+        <h3>Milvus 集成</h3>
+        <p>向量索引持久化，支持百万级文档规模。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <h2 class="section-title">技术栈</h2>
+    <p class="section-sub">生产级组件，不堆砌玩具</p>
+    <div class="tech">
+      <span class="tag">Python 3.13</span>
+      <span class="tag">FastAPI</span>
+      <span class="tag">Milvus</span>
+      <span class="tag">OpenAI 兼容</span>
+      <span class="tag">BM25</span>
+      <span class="tag">LLM Rerank</span>
+      <span class="tag">Docker</span>
+      <span class="tag">Nginx</span>
+      <span class="tag">180 单元测试</span>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="cta">
+      <h2>有需求？聊一聊</h2>
+      <p>企业知识库定制 / RAG 私有化部署 / AI 客服开发</p>
+      <div class="hero-btns">
+        <a href="https://your-site.example.com" target="_blank" class="btn btn-primary">查看服务方案</a>
+        <a href="https://github.com/DevinHeCoder/rag_engine" target="_blank" class="btn btn-ghost">浏览源码</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    © 2026 RAG Engine · 企业可插拔式 RAG 检索引擎
+  </div>
+</footer>
+
+</body>
+</html>
