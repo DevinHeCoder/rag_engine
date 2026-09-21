@@ -9,7 +9,6 @@
 | | 地址 |
 |---|---|
 | **Web 演示** | [https://your-demo.example.com](https://your-demo.example.com) |
-| **落地页** | [https://your-site.example.com](https://your-site.example.com) |
 | **演示视频** | 见下方 GIF / 本地 `landing/assets/demo.mp4` |
 
 > 上传一份员工手册即可提问，回答带来源溯源。
@@ -74,7 +73,7 @@ rag_engine/
 ├── examples/            # query_rag.py / evaluate.py / ingest_docs.py
 ├── tests/               # 180 个单元测试
 ├── web/                 # 企业级深色 Web UI + nginx 配置
-├── landing/             # 交付落地页（含演示视频，不进公开仓库）
+├── landing/             # 演示落地页（含演示视频）
 ├── demo_doc.md          # 演示用员工手册
 ├── requirements.txt
 ├── Dockerfile
