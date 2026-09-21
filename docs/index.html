@@ -3,174 +3,275 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RAG Engine · 企业可插拔式 RAG 检索引擎</title>
-<meta name="description" content="从零实现的可插拔式企业 RAG 检索引擎。支持多向量库、多种分块策略、混合检索与来源溯源。">
-<meta property="og:title" content="RAG Engine · 企业可插拔式 RAG 检索引擎">
-<meta property="og:description" content="从零实现的可插拔式企业 RAG 检索引擎。支持多向量库、多种分块策略、混合检索与来源溯源。">
-<meta property="og:type" content="website">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f7cff'/><text x='50' y='68' font-size='52' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'>R</text></svg>">
+<title>RAG 控制台 · 企业可插拔式 RAG 检索引擎</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-  background: #0f111a; color: #e8eaf0; line-height: 1.6;
+  background: #0f111a; color: #e8eaf0; height: 100vh; overflow: hidden;
 }
 a { color: inherit; text-decoration: none; }
-.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
 
-nav {
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(15,17,26,0.85); backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+.app { display: flex; height: 100vh; }
+
+.sidebar {
+  width: 280px; min-width: 280px; background: #151823;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  display: flex; flex-direction: column;
 }
-.nav-inner { display: flex; justify-content: space-between; align-items: center; height: 60px; }
-.logo { font-size: 17px; font-weight: 700; }
+.sidebar-header { padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.logo { font-size: 16px; font-weight: 700; }
 .logo span { color: #4f7cff; }
-.nav-links { display: flex; gap: 20px; font-size: 14px; color: #9aa0b4; }
-.nav-links a:hover { color: #fff; }
+.logo-sub { font-size: 11px; color: #6b7080; margin-top: 2px; }
 
-.hero { padding: 72px 0 48px; text-align: center; }
-.hero h1 { font-size: 42px; font-weight: 800; line-height: 1.2; margin-bottom: 16px; }
-.hero h1 span {
-  background: linear-gradient(135deg, #4f7cff, #8b5cf6);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text;
+.sidebar-section { padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.sidebar-label { font-size: 11px; color: #6b7080; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+
+.doc-item {
+  display: flex; align-items: center; gap: 8px; padding: 8px 10px;
+  background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 6px; font-size: 13px;
 }
-.hero p { font-size: 17px; color: #9aa0b4; max-width: 600px; margin: 0 auto 32px; }
-.hero-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
-.btn {
-  padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 500;
-  transition: transform .15s, opacity .15s;
+.doc-item .dot { width: 8px; height: 8px; border-radius: 50%; background: #4f7cff; flex-shrink: 0; }
+.doc-item .meta { color: #6b7080; font-size: 11px; margin-left: auto; }
+
+.opt-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; font-size: 13px; }
+.opt-row label { color: #9aa0b4; }
+.opt-row select {
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  color: #e8eaf0; border-radius: 6px; padding: 4px 8px; font-size: 12px;
 }
-.btn:hover { transform: translateY(-2px); }
-.btn-primary { background: #4f7cff; color: #fff; }
-.btn-ghost { background: rgba(255,255,255,0.06); color: #e8eaf0; border: 1px solid rgba(255,255,255,0.12); }
+.opt-row input[type=range] { width: 80px; }
+.opt-val { color: #4f7cff; font-size: 12px; min-width: 30px; text-align: right; }
 
-.section { padding: 48px 0; }
-.section-title { font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 8px; }
-.section-sub { text-align: center; color: #9aa0b4; margin-bottom: 40px; font-size: 14px; }
-
-.features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
-.feature {
-  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 12px; padding: 20px;
+.switch { position: relative; width: 36px; height: 20px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute; inset: 0; background: rgba(255,255,255,0.1);
+  border-radius: 20px; cursor: pointer; transition: .2s;
 }
-.feature h3 { font-size: 15px; margin-bottom: 6px; color: #fff; }
-.feature p { font-size: 13px; color: #9aa0b4; }
-
-.tech { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-.tag {
-  padding: 6px 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 16px; font-size: 12px; color: #c8ccdb;
+.slider:before {
+  content: ""; position: absolute; width: 16px; height: 16px;
+  left: 2px; top: 2px; background: #9aa0b4; border-radius: 50%; transition: .2s;
 }
+.switch input:checked + .slider { background: #4f7cff; }
+.switch input:checked + .slider:before { transform: translateX(16px); background: #fff; }
 
-.cta {
-  background: linear-gradient(135deg, rgba(79,124,255,0.1), rgba(139,92,246,0.1));
-  border-radius: 16px; padding: 40px; text-align: center; border: 1px solid rgba(79,124,255,0.2);
+.main { flex: 1; display: flex; flex-direction: column; }
+
+.topbar {
+  height: 48px; min-height: 48px; border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: center; padding: 0 20px; gap: 12px;
+  font-size: 12px;
 }
-.cta h2 { font-size: 24px; margin-bottom: 10px; }
-.cta p { color: #9aa0b4; margin-bottom: 24px; }
+.badge {
+  padding: 3px 10px; border-radius: 12px; font-size: 11px;
+  background: rgba(79,124,255,0.15); color: #4f7cff;
+}
+.badge.green { background: rgba(34,197,94,0.15); color: #22c55e; }
+.badge.gray { background: rgba(255,255,255,0.06); color: #9aa0b4; }
 
-footer { padding: 28px 0; text-align: center; color: #6b7080; font-size: 13px; border-top: 1px solid rgba(255,255,255,0.06); }
+.chat { flex: 1; overflow-y: auto; padding: 24px; }
+.msg { max-width: 720px; margin: 0 auto 20px; }
+.msg.user { text-align: right; }
+.bubble {
+  display: inline-block; padding: 12px 16px; border-radius: 12px;
+  font-size: 14px; line-height: 1.6; text-align: left;
+}
+.msg.user .bubble { background: #4f7cff; color: #fff; }
+.msg.assistant .bubble { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
+
+.sources {
+  margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px;
+}
+.sources-title { font-size: 11px; color: #6b7080; margin-bottom: 6px; }
+.source-item {
+  padding: 8px 10px; background: rgba(79,124,255,0.06); border-radius: 6px;
+  margin-bottom: 4px; font-size: 12px; color: #9aa0b4;
+}
+.source-item strong { color: #4f7cff; }
+
+.typing { display: inline-block; width: 8px; height: 16px; background: #4f7cff; animation: blink 1s infinite; vertical-align: middle; }
+@keyframes blink { 50% { opacity: 0; } }
+
+.input-area { padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+.input-box { max-width: 720px; margin: 0 auto; position: relative; }
+.input-box textarea {
+  width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px; padding: 12px 48px 12px 16px; color: #e8eaf0; font-size: 14px;
+  resize: none; height: 48px; font-family: inherit; outline: none;
+}
+.input-box textarea:focus { border-color: #4f7cff; }
+.send-btn {
+  position: absolute; right: 8px; bottom: 8px; width: 36px; height: 36px;
+  background: #4f7cff; border: none; border-radius: 8px; color: #fff; cursor: pointer;
+  font-size: 16px; display: flex; align-items: center; justify-content: center;
+}
+.send-btn:hover { background: #3b5fd9; }
+
+.examples { max-width: 720px; margin: 0 auto 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+.ex-chip {
+  padding: 6px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px; font-size: 12px; color: #c8ccdb; cursor: pointer;
+  transition: .15s;
+}
+.ex-chip:hover { border-color: #4f7cff; color: #fff; }
+
+.welcome { max-width: 720px; margin: 40px auto; text-align: center; }
+.welcome h1 { font-size: 28px; margin-bottom: 12px; }
+.welcome p { color: #9aa0b4; font-size: 14px; line-height: 1.8; }
+.welcome .status { margin-top: 20px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
 
 @media (max-width: 768px) {
-  .hero h1 { font-size: 28px; }
-  .nav-links { display: none; }
+  .sidebar { display: none; }
 }
 </style>
 </head>
 <body>
 
-<nav>
-  <div class="container nav-inner">
-    <div class="logo">RAG<span>.</span>Engine</div>
-    <div class="nav-links">
-      <a href="https://github.com/DevinHeCoder/rag_engine" target="_blank">GitHub</a>
-      <a href="https://your-demo.example.com" target="_blank">在线 Demo</a>
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">RAG<span>.</span>Engine</div>
+      <div class="logo-sub">企业可插拔式 RAG 检索引擎</div>
     </div>
-  </div>
-</nav>
 
-<header class="hero">
-  <div class="container">
-    <h1>企业可插拔式 <span>RAG 检索引擎</span></h1>
-    <p>从零实现的企业级 RAG 系统。每层抽象 + 注册表 + 配置选型，新增实现只需写类加装饰器，上层零改动。</p>
-    <div class="hero-btns">
-      <a href="https://your-demo.example.com" target="_blank" class="btn btn-primary">在线体验 Demo</a>
-      <a href="https://github.com/DevinHeCoder/rag_engine" target="_blank" class="btn btn-ghost">GitHub 源码</a>
+    <div class="sidebar-section">
+      <div class="sidebar-label">知识库文档</div>
+      <div class="doc-item"><div class="dot"></div><span>员工手册 v2.1</span><span class="meta">3 篇</span></div>
+      <div class="doc-item"><div class="dot"></div><span>产品手册.pdf</span><span class="meta">12 篇</span></div>
+      <div class="doc-item"><div class="dot"></div><span>售后政策.docx</span><span class="meta">5 篇</span></div>
     </div>
-  </div>
-</header>
 
-<section class="section">
-  <div class="container">
-    <h2 class="section-title">核心能力</h2>
-    <p class="section-sub">不是调 API 的玩具，是可落地生产的架构</p>
-    <div class="features">
-      <div class="feature">
-        <h3>可插拔架构</h3>
-        <p>向量库、LLM、Embedding 全部接口化，一套代码换组件不改业务。</p>
+    <div class="sidebar-section">
+      <div class="sidebar-label">分块策略</div>
+      <div class="opt-row"><label>策略</label>
+        <select><option>语义分块</option><option>层级分块</option><option>定长分块</option></select>
       </div>
-      <div class="feature">
-        <h3>三种分块策略</h3>
-        <p>定长、层级、语义分块按需切换，适配不同文档体裁。</p>
-      </div>
-      <div class="feature">
-        <h3>混合检索 + 重排</h3>
-        <p>BM25 关键词与向量语义混合召回，LLM 重排精排。</p>
-      </div>
-      <div class="feature">
-        <h3>来源溯源</h3>
-        <p>每条回答附带来源文档片段与相关度分数，不瞎编。</p>
-      </div>
-      <div class="feature">
-        <h3>多租户</h3>
-        <p>API Key 鉴权，按租户隔离索引与查询缓存。</p>
-      </div>
-      <div class="feature">
-        <h3>Milvus 集成</h3>
-        <p>向量索引持久化，支持百万级文档规模。</p>
+      <div class="opt-row"><label>top_k</label><input type="range" min="2" max="10" value="4"><span class="opt-val">4</span></div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">检索配置</div>
+      <div class="opt-row"><label>混合检索</label><div class="switch"><input type="checkbox" checked><div class="slider"></div></div></div>
+      <div class="opt-row"><label>LLM 重排</label><div class="switch"><input type="checkbox"><div class="slider"></div></div></div>
+      <div class="opt-row"><label>向量库</label><span style="font-size:12px;color:#22c55e;">Milvus</span></div>
+    </div>
+
+    <div class="sidebar-section" style="margin-top:auto;">
+      <div class="sidebar-label">演示模式</div>
+      <div style="font-size:11px;color:#6b7080;line-height:1.6;">
+        纯前端演示 · 不调用真实模型<br>回复为本地示例数据
       </div>
     </div>
   </div>
-</section>
 
-<section class="section">
-  <div class="container">
-    <h2 class="section-title">技术栈</h2>
-    <p class="section-sub">生产级组件，不堆砌玩具</p>
-    <div class="tech">
-      <span class="tag">Python 3.13</span>
-      <span class="tag">FastAPI</span>
-      <span class="tag">Milvus</span>
-      <span class="tag">OpenAI 兼容</span>
-      <span class="tag">BM25</span>
-      <span class="tag">LLM Rerank</span>
-      <span class="tag">Docker</span>
-      <span class="tag">Nginx</span>
-      <span class="tag">180 单元测试</span>
+  <div class="main">
+    <div class="topbar">
+      <span class="badge green">● ONLINE</span>
+      <span class="badge">模型: Qwen-7B</span>
+      <span class="badge gray">检索: hybrid</span>
+      <span class="badge gray">重排: 关闭</span>
+      <span style="margin-left:auto;color:#6b7080;font-size:11px;">v1.0 · demo</span>
     </div>
-  </div>
-</section>
 
-<section class="section">
-  <div class="container">
-    <div class="cta">
-      <h2>在线体验</h2>
-      <p>上传一份文档即可提问，回答带来源溯源。</p>
-      <div class="hero-btns">
-        <a href="https://your-demo.example.com" target="_blank" class="btn btn-primary">体验 Demo</a>
-        <a href="https://github.com/DevinHeCoder/rag_engine" target="_blank" class="btn btn-ghost">浏览源码</a>
+    <div class="chat" id="chat">
+      <div class="welcome">
+        <h1>企业知识库问答</h1>
+        <p>上传产品手册、员工制度、客户文档，AI 基于你的文档回答，不瞎编、附来源。</p>
+        <div class="status">
+          <span class="badge green">已加载 3 个文档</span>
+          <span class="badge">语义分块</span>
+          <span class="badge gray">混合检索</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="examples">
+        <div class="ex-chip" onclick="ask('入职年假有几天？')">入职年假有几天？</div>
+        <div class="ex-chip" onclick="ask('报销流程是什么？')">报销流程是什么？</div>
+        <div class="ex-chip" onclick="ask('产品支持私有化部署吗？')">产品支持私有化部署吗？</div>
+      </div>
+      <div class="input-box">
+        <textarea id="input" placeholder="输入你的问题，AI 基于知识库回答…（Enter 发送）" onkeydown="onKey(event)"></textarea>
+        <button class="send-btn" onclick="send()">→</button>
       </div>
     </div>
   </div>
-</section>
+</div>
 
-<footer>
-  <div class="container">
-    © 2026 RAG Engine · 企业可插拔式 RAG 检索引擎
-  </div>
-</footer>
+<script>
+const answers = {
+  "入职年假有几天？": {
+    text: "根据《员工手册》第三章第 12 条，入职员工年假规则如下：\n\n• 入职满 1 年：5 天年假\n• 入职满 10 年：10 天年假\n• 入职满 20 年：15 天年假\n\n年假需提前 3 个工作日在 OA 系统申请，经直属主管审批后生效。未休年假可结转至次年 Q1，逾期作废。",
+    sources: [
+      { doc: "员工手册 v2.1", chunk: "第三章 考勤与休假 · 12.年假制度", score: "0.94" },
+      { doc: "员工手册 v2.1", chunk: "第三章 考勤与休假 · 13.请假流程", score: "0.87" }
+    ]
+  },
+  "报销流程是什么？": {
+    text: "报销流程如下：\n\n1. 员工在 OA 系统填写报销单，附发票照片\n2. 直属主管审批（1 个工作日内）\n3. 财务审核票据合规性（2 个工作日内）\n4. 打款至工资卡，每周三、周五统一打款\n\n注意：发票抬头必须为公司全称，增值税专票需在开票日起 90 天内提交。",
+    sources: [
+      { doc: "员工手册 v2.1", chunk: "第五章 财务报销 · 8.报销流程", score: "0.96" },
+      { doc: "售后政策.docx", chunk: "财务相关条款", score: "0.71" }
+    ]
+  },
+  "产品支持私有化部署吗？": {
+    text: "支持。本系统提供三种部署模式：\n\n• SaaS 版：直接使用云端服务，零运维\n• 私有云版：部署在企业 VPC 内，数据不出内网\n• 本地版：完全离线部署，对接企业现有 LLM\n\n私有化部署支持对接 OpenAI 兼容接口（DeepSeek / 通义 / 本地 vLLM），向量库支持 Milvus 持久化。",
+    sources: [
+      { doc: "产品手册.pdf", chunk: "第二章 部署架构 · 2.3 私有化方案", score: "0.93" },
+      { doc: "产品手册.pdf", chunk: "第二章 部署架构 · 2.1 系统要求", score: "0.82" }
+    ]
+  }
+};
+
+function ask(q) {
+  document.getElementById('input').value = q;
+  send();
+}
+
+function onKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+}
+
+function send() {
+  const input = document.getElementById('input');
+  const q = input.value.trim();
+  if (!q) return;
+  input.value = '';
+
+  const chat = document.getElementById('chat');
+  const w = chat.querySelector('.welcome');
+  if (w) w.remove();
+
+  chat.insertAdjacentHTML('beforeend', '<div class="msg user"><div class="bubble">' + escapeHtml(q) + '</div></div>');
+  chat.scrollTop = chat.scrollHeight;
+
+  const tid = 't' + Date.now();
+  chat.insertAdjacentHTML('beforeend', '<div class="msg assistant" id="' + tid + '"><div class="bubble">检索中…<span class="typing"></span></div></div>');
+  chat.scrollTop = chat.scrollHeight;
+
+  setTimeout(function() {
+    const a = answers[q] || {
+      text: "这是演示模式的示例回答。在真实环境中，我会基于你上传的文档进行检索，返回带来源溯源的答案。\n\n试试左侧切换分块策略，或点上方示例问题。",
+      sources: [{ doc: "演示文档", chunk: "示例片段", score: "0.80" }]
+    };
+    const el = document.getElementById(tid);
+    let html = '<div class="bubble">' + escapeHtml(a.text) + '<div class="sources"><div class="sources-title">来源溯源 (' + a.sources.length + ')</div>';
+    for (let i = 0; i < a.sources.length; i++) {
+      const s = a.sources[i];
+      html += '<div class="source-item"><strong>' + escapeHtml(s.doc) + '</strong> · ' + escapeHtml(s.chunk) + ' · 相关度 ' + s.score + '</div>';
+    }
+    html += '</div></div>';
+    el.innerHTML = html;
+    chat.scrollTop = chat.scrollHeight;
+  }, 1200);
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
 
 </body>
 </html>
